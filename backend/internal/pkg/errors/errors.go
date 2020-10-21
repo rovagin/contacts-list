@@ -1,5 +1,13 @@
 package errors
 
-func ProcessError(err error) []byte {
-	return []byte(`just a test`)
+import (
+	"errors"
+)
+
+func New(reason string) error {
+	return errors.New(reason)
+}
+
+func ProcessError(err error) (int, []byte) {
+	return 0, []byte(``)
 }

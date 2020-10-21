@@ -9,7 +9,7 @@ type Contact struct {
 }
 
 type Repository interface {
-	Update() error
+	Save(contact Contact) (int, error)
 }
 
 type Usecase struct {
@@ -22,11 +22,11 @@ func New(repo Repository) *Usecase {
 	}
 }
 
-func (u *Usecase) Do() error {
-	err := u.contactsRepo.Update()
+func (u *Usecase) Do(contact Contact) (int, error) {
+	result, err := u.contactsRepo.Save(contact)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return result, nil
 }

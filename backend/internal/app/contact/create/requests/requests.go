@@ -2,12 +2,13 @@ package requests
 
 import (
 	"contacts-list/api"
-	"contacts-list/internal/app/contacts-list/usecase"
-	"contacts-list/internal/pkg/errors"
 	"contacts-list/internal/pkg/http/wrapper"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"contacts-list/internal/app/contact/create/usecase"
+	"contacts-list/internal/pkg/errors"
 )
 
 type Requests struct {
@@ -33,7 +34,32 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result, err := r.interactor.Do(0)
+	if request.Payload == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	contactReq := new(api.CreateContactRequest)
+	err = json.Unmarshal(request.Payload, contactReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = validateRequest(contactReq)
+	if err != nil {
+		// TODO: there could be general response with hint to bad data
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	result, err := r.interactor.Do(usecase.Contact{
+		FirstName: contactReq.FirstName,
+		LastName:  contactReq.LastName,
+		Phone:     contactReq.Phone,
+		Email:     contactReq.Email,
+		Note:      contactReq.Note,
+	})
 	if err != nil {
 		code, payload := errors.ProcessError(err)
 		fullResponse, err := wrapper.BuildResponse(request.RID, code, payload)
@@ -45,15 +71,12 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	formatted := toAPI(result)
-
-	payloadBytes, err := json.Marshal(formatted)
+	payloadBytes, err := json.Marshal(&api.CreateContactResponse{ID: result})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	fullResponse, err := wrapper.BuildResponse("", 0, payloadBytes)
+	fullResponse, err := wrapper.BuildResponse(request.RID, 0, payloadBytes)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -63,19 +86,11 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Write(fullResponse)
 }
 
-func toAPI(contacts usecase.Contacts) api.Contacts {
-	result := make(api.Contacts, 0, len(contacts))
-
-	for _, v := range contacts {
-		result = append(result, api.Contact{
-			ID:        v.ID,
-			FirstName: v.FirstName,
-			LastName:  v.LastName,
-			Phone:     v.Phone,
-			Email:     v.Email,
-			Note:      v.Note,
-		})
+// TODO: Add some basic checks
+func validateRequest(req *api.CreateContactRequest) error {
+	if req.LastName == "" || req.FirstName == "" {
+		return errors.New("bad last name")
 	}
 
-	return result
+	return nil
 }
