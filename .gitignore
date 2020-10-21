@@ -11,7 +11,7 @@ node_modules
 coverage
 
 # production
-frontend/app/build
+front/app/build
 
 # misc
 .DS_Store
