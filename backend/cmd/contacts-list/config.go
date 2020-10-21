@@ -6,14 +6,18 @@ import (
 )
 
 type Config struct {
-	PG PG
+	PG   PG
+	HTTP HTTP
+}
+
+type HTTP struct {
+	URI string `env:"HTTP_SERVER_URI" enfDefault:"0.0.0.0:80"`
 }
 
 type PG struct {
-	URI string `env:"PG_URI"`
+	URI               string        `env:"PG_URI"`
 	ConnectionTimeout time.Duration `env:"PG_CONNECT_TIMEOUT"`
 }
-
 
 func parse() (*Config, error) {
 	cfg := Config{}
@@ -25,4 +29,3 @@ func parse() (*Config, error) {
 
 	return &cfg, nil
 }
-

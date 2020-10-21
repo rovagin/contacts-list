@@ -9,6 +9,11 @@ import (
 )
 
 func main() {
+	config, err := parse()
+	if err != nil {
+		panic(err)
+	}
+
 	contactsListRequest := contactslist.Setup()
 
 	router := mux.NewRouter()
@@ -16,8 +21,8 @@ func main() {
 	router.Handle("/contacts", contactsListRequest)
 
 	srv := &http.Server{
-		Handler: router,
-		Addr:    "0.0.0.0:8000",
+		Handler:      router,
+		Addr:         config.HTTP.URI,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

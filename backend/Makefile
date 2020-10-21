@@ -1,5 +1,8 @@
 PROJECT_NAME=contacts-list
 
+gen-api:
+	cd api && easyjson --all .
+
 download:
 	go mod download
 
