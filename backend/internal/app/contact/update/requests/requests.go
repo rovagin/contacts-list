@@ -15,5 +15,6 @@ func New(interactor *usecase.Usecase) *Requests {
 	}
 }
 
+// TODO: serve request
 func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
