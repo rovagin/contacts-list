@@ -89,7 +89,7 @@ func toAPI(contacts usecase.Contacts) api.ContactsListResponse {
 	result := make(api.ContactsListResponse, 0, len(contacts))
 
 	for _, v := range contacts {
-		result = append(result, api.Contact{
+		result = append(result, api.ContactsListContact{
 			ID:        v.ID,
 			FirstName: v.FirstName,
 			LastName:  v.LastName,

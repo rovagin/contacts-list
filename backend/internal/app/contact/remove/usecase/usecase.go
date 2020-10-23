@@ -1,7 +1,7 @@
 package usecase
 
 type Repository interface {
-	Remove(id int) error
+	Remove(userID, contactID int) error
 }
 
 type Usecase struct {
@@ -14,8 +14,8 @@ func New(repo Repository) *Usecase {
 	}
 }
 
-func (u *Usecase) Do(id int) error {
-	err := u.contactsRepo.Remove(id)
+func (u *Usecase) Do(userID, contactID int) error {
+	err := u.contactsRepo.Remove(userID, contactID)
 	if err != nil {
 		return err
 	}

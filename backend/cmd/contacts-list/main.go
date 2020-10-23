@@ -39,8 +39,8 @@ func main() {
 
 	router.Handle("/contacts", contactsListRequest).Methods(http.MethodPost, http.MethodOptions)
 	router.Handle("/contact", createRequest).Methods(http.MethodPost, http.MethodOptions)
-	router.Handle("/contact/{id}", updateRequest).Methods(http.MethodPatch, http.MethodOptions)
-	router.Handle("/contact/{id}", removeRequest).Methods(http.MethodDelete, http.MethodOptions)
+	router.Handle("/contact", updateRequest).Methods(http.MethodPatch, http.MethodOptions)
+	router.Handle("/contact", removeRequest).Methods(http.MethodDelete, http.MethodOptions)
 
 	log.Println("starting http server")
 

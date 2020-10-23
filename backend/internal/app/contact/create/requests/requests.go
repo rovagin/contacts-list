@@ -78,7 +78,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 // TODO: Add some basic checks
-func validateRequest(contact api.Contact) error {
+func validateRequest(contact api.CreateContact) error {
 	if contact.FirstName == "" {
 		return errors.New("bad first name")
 	}

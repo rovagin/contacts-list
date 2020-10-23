@@ -1,15 +1,7 @@
 package usecase
 
-type Contact struct {
-	FirstName string
-	LastName  string
-	Phone     string
-	Email     string
-	Note      string
-}
-
 type Repository interface {
-	Update() error
+	Update(userID int, contactID int, fields map[string]interface{}) error
 }
 
 type Usecase struct {
@@ -22,8 +14,9 @@ func New(repo Repository) *Usecase {
 	}
 }
 
-func (u *Usecase) Do() error {
-	err := u.contactsRepo.Update()
+// TODO: add check for phone duplicate
+func (u *Usecase) Do(userID int, contactID int, fields map[string]interface{}) error {
+	err := u.contactsRepo.Update(userID, contactID, fields)
 	if err != nil {
 		return err
 	}

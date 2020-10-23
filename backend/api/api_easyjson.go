@@ -17,7 +17,129 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonC1cedd36DecodeContactsListApi(in *jlexer.Lexer, out *Response) {
+func easyjsonC1cedd36DecodeContactsListApi(in *jlexer.Lexer, out *UpdateContactRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "user_id":
+			out.UserID = int(in.Int())
+		case "contact_id":
+			out.ContactID = int(in.Int())
+		case "fields":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Fields = make(map[string]interface{})
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v1 interface{}
+					if m, ok := v1.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v1.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v1 = in.Interface()
+					}
+					(out.Fields)[key] = v1
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonC1cedd36EncodeContactsListApi(out *jwriter.Writer, in UpdateContactRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"user_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.UserID))
+	}
+	{
+		const prefix string = ",\"contact_id\":"
+		out.RawString(prefix)
+		out.Int(int(in.ContactID))
+	}
+	{
+		const prefix string = ",\"fields\":"
+		out.RawString(prefix)
+		if in.Fields == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v2First := true
+			for v2Name, v2Value := range in.Fields {
+				if v2First {
+					v2First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v2Name))
+				out.RawByte(':')
+				if m, ok := v2Value.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v2Value.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v2Value))
+				}
+			}
+			out.RawByte('}')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v UpdateContactRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonC1cedd36EncodeContactsListApi(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v UpdateContactRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC1cedd36EncodeContactsListApi(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *UpdateContactRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonC1cedd36DecodeContactsListApi(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *UpdateContactRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC1cedd36DecodeContactsListApi(l, v)
+}
+func easyjsonC1cedd36DecodeContactsListApi1(in *jlexer.Lexer, out *Response) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -54,7 +176,7 @@ func easyjsonC1cedd36DecodeContactsListApi(in *jlexer.Lexer, out *Response) {
 		in.Consumed()
 	}
 }
-func easyjsonC1cedd36EncodeContactsListApi(out *jwriter.Writer, in Response) {
+func easyjsonC1cedd36EncodeContactsListApi1(out *jwriter.Writer, in Response) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -79,27 +201,27 @@ func easyjsonC1cedd36EncodeContactsListApi(out *jwriter.Writer, in Response) {
 // MarshalJSON supports json.Marshaler interface
 func (v Response) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC1cedd36EncodeContactsListApi(&w, v)
+	easyjsonC1cedd36EncodeContactsListApi1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Response) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC1cedd36EncodeContactsListApi(w, v)
+	easyjsonC1cedd36EncodeContactsListApi1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Response) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC1cedd36DecodeContactsListApi(&r, v)
+	easyjsonC1cedd36DecodeContactsListApi1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Response) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC1cedd36DecodeContactsListApi(l, v)
+	easyjsonC1cedd36DecodeContactsListApi1(l, v)
 }
-func easyjsonC1cedd36DecodeContactsListApi1(in *jlexer.Lexer, out *Request) {
+func easyjsonC1cedd36DecodeContactsListApi2(in *jlexer.Lexer, out *Request) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -134,7 +256,7 @@ func easyjsonC1cedd36DecodeContactsListApi1(in *jlexer.Lexer, out *Request) {
 		in.Consumed()
 	}
 }
-func easyjsonC1cedd36EncodeContactsListApi1(out *jwriter.Writer, in Request) {
+func easyjsonC1cedd36EncodeContactsListApi2(out *jwriter.Writer, in Request) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -154,27 +276,100 @@ func easyjsonC1cedd36EncodeContactsListApi1(out *jwriter.Writer, in Request) {
 // MarshalJSON supports json.Marshaler interface
 func (v Request) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC1cedd36EncodeContactsListApi1(&w, v)
+	easyjsonC1cedd36EncodeContactsListApi2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Request) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC1cedd36EncodeContactsListApi1(w, v)
+	easyjsonC1cedd36EncodeContactsListApi2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Request) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC1cedd36DecodeContactsListApi1(&r, v)
+	easyjsonC1cedd36DecodeContactsListApi2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Request) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC1cedd36DecodeContactsListApi1(l, v)
+	easyjsonC1cedd36DecodeContactsListApi2(l, v)
 }
-func easyjsonC1cedd36DecodeContactsListApi2(in *jlexer.Lexer, out *CreateContactRequest) {
+func easyjsonC1cedd36DecodeContactsListApi3(in *jlexer.Lexer, out *RemoveContactRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "user_id":
+			out.UserID = int(in.Int())
+		case "contact_id":
+			out.ContactID = int(in.Int())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonC1cedd36EncodeContactsListApi3(out *jwriter.Writer, in RemoveContactRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"user_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.UserID))
+	}
+	{
+		const prefix string = ",\"contact_id\":"
+		out.RawString(prefix)
+		out.Int(int(in.ContactID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v RemoveContactRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonC1cedd36EncodeContactsListApi3(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v RemoveContactRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC1cedd36EncodeContactsListApi3(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *RemoveContactRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonC1cedd36DecodeContactsListApi3(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *RemoveContactRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC1cedd36DecodeContactsListApi3(l, v)
+}
+func easyjsonC1cedd36DecodeContactsListApi4(in *jlexer.Lexer, out *CreateContactRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -207,7 +402,7 @@ func easyjsonC1cedd36DecodeContactsListApi2(in *jlexer.Lexer, out *CreateContact
 		in.Consumed()
 	}
 }
-func easyjsonC1cedd36EncodeContactsListApi2(out *jwriter.Writer, in CreateContactRequest) {
+func easyjsonC1cedd36EncodeContactsListApi4(out *jwriter.Writer, in CreateContactRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -227,93 +422,27 @@ func easyjsonC1cedd36EncodeContactsListApi2(out *jwriter.Writer, in CreateContac
 // MarshalJSON supports json.Marshaler interface
 func (v CreateContactRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC1cedd36EncodeContactsListApi2(&w, v)
+	easyjsonC1cedd36EncodeContactsListApi4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v CreateContactRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC1cedd36EncodeContactsListApi2(w, v)
+	easyjsonC1cedd36EncodeContactsListApi4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *CreateContactRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC1cedd36DecodeContactsListApi2(&r, v)
+	easyjsonC1cedd36DecodeContactsListApi4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CreateContactRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC1cedd36DecodeContactsListApi2(l, v)
+	easyjsonC1cedd36DecodeContactsListApi4(l, v)
 }
-func easyjsonC1cedd36DecodeContactsListApi3(in *jlexer.Lexer, out *ContactsListRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "user_id":
-			out.UserID = int(in.Int())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonC1cedd36EncodeContactsListApi3(out *jwriter.Writer, in ContactsListRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"user_id\":"
-		out.RawString(prefix[1:])
-		out.Int(int(in.UserID))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v ContactsListRequest) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonC1cedd36EncodeContactsListApi3(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v ContactsListRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC1cedd36EncodeContactsListApi3(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *ContactsListRequest) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonC1cedd36DecodeContactsListApi3(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *ContactsListRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC1cedd36DecodeContactsListApi3(l, v)
-}
-func easyjsonC1cedd36DecodeContactsListApi4(in *jlexer.Lexer, out *Contact) {
+func easyjsonC1cedd36DecodeContactsListApi5(in *jlexer.Lexer, out *CreateContact) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -354,7 +483,7 @@ func easyjsonC1cedd36DecodeContactsListApi4(in *jlexer.Lexer, out *Contact) {
 		in.Consumed()
 	}
 }
-func easyjsonC1cedd36EncodeContactsListApi4(out *jwriter.Writer, in Contact) {
+func easyjsonC1cedd36EncodeContactsListApi5(out *jwriter.Writer, in CreateContact) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -392,25 +521,192 @@ func easyjsonC1cedd36EncodeContactsListApi4(out *jwriter.Writer, in Contact) {
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Contact) MarshalJSON() ([]byte, error) {
+func (v CreateContact) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonC1cedd36EncodeContactsListApi4(&w, v)
+	easyjsonC1cedd36EncodeContactsListApi5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Contact) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonC1cedd36EncodeContactsListApi4(w, v)
+func (v CreateContact) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC1cedd36EncodeContactsListApi5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Contact) UnmarshalJSON(data []byte) error {
+func (v *CreateContact) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonC1cedd36DecodeContactsListApi4(&r, v)
+	easyjsonC1cedd36DecodeContactsListApi5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Contact) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonC1cedd36DecodeContactsListApi4(l, v)
+func (v *CreateContact) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC1cedd36DecodeContactsListApi5(l, v)
+}
+func easyjsonC1cedd36DecodeContactsListApi6(in *jlexer.Lexer, out *ContactsListRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "user_id":
+			out.UserID = int(in.Int())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonC1cedd36EncodeContactsListApi6(out *jwriter.Writer, in ContactsListRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"user_id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.UserID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v ContactsListRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonC1cedd36EncodeContactsListApi6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ContactsListRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC1cedd36EncodeContactsListApi6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *ContactsListRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonC1cedd36DecodeContactsListApi6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ContactsListRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC1cedd36DecodeContactsListApi6(l, v)
+}
+func easyjsonC1cedd36DecodeContactsListApi7(in *jlexer.Lexer, out *ContactsListContact) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = int(in.Int())
+		case "first_name":
+			out.FirstName = string(in.String())
+		case "last_name":
+			out.LastName = string(in.String())
+		case "phone":
+			out.Phone = string(in.String())
+		case "email":
+			out.Email = string(in.String())
+		case "note":
+			out.Note = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonC1cedd36EncodeContactsListApi7(out *jwriter.Writer, in ContactsListContact) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.ID))
+	}
+	{
+		const prefix string = ",\"first_name\":"
+		out.RawString(prefix)
+		out.String(string(in.FirstName))
+	}
+	{
+		const prefix string = ",\"last_name\":"
+		out.RawString(prefix)
+		out.String(string(in.LastName))
+	}
+	{
+		const prefix string = ",\"phone\":"
+		out.RawString(prefix)
+		out.String(string(in.Phone))
+	}
+	{
+		const prefix string = ",\"email\":"
+		out.RawString(prefix)
+		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"note\":"
+		out.RawString(prefix)
+		out.String(string(in.Note))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v ContactsListContact) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonC1cedd36EncodeContactsListApi7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v ContactsListContact) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonC1cedd36EncodeContactsListApi7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *ContactsListContact) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonC1cedd36DecodeContactsListApi7(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *ContactsListContact) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonC1cedd36DecodeContactsListApi7(l, v)
 }

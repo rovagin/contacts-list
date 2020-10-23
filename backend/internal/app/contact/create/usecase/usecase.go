@@ -23,8 +23,9 @@ func New(repo Repository) *Usecase {
 	}
 }
 
+// TODO: add check for phone duplicate
 func (u *Usecase) Do(userID int, contact Contact) error {
-	err := u.contactsRepo.Save(0, contact)
+	err := u.contactsRepo.Save(userID, contact)
 	if err != nil {
 		return err
 	}
