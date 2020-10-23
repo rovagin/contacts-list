@@ -5,6 +5,7 @@ import (
 	"contacts-list/internal/pkg/http/wrapper"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"contacts-list/internal/app/contact/create/usecase"
@@ -30,6 +31,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	request, err := wrapper.GetRequest(body)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -46,19 +48,20 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = validateRequest(contactReq)
+	err = validateRequest(contactReq.Contact)
 	if err != nil {
 		// TODO: there could be general response with hint to bad data
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	result, err := r.interactor.Do(usecase.Contact{
-		FirstName: contactReq.FirstName,
-		LastName:  contactReq.LastName,
-		Phone:     contactReq.Phone,
-		Email:     contactReq.Email,
-		Note:      contactReq.Note,
+	err = r.interactor.Do(contactReq.UserID, usecase.Contact{
+		ID:        contactReq.Contact.ID,
+		FirstName: contactReq.Contact.FirstName,
+		LastName:  contactReq.Contact.LastName,
+		Phone:     contactReq.Contact.Phone,
+		Email:     contactReq.Contact.Email,
+		Note:      contactReq.Contact.Note,
 	})
 	if err != nil {
 		code, payload := errors.ProcessError(err)
@@ -71,24 +74,16 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	payloadBytes, err := json.Marshal(&api.CreateContactResponse{ID: result})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	fullResponse, err := wrapper.BuildResponse(request.RID, 0, payloadBytes)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(fullResponse)
+	w.WriteHeader(http.StatusOK)
 }
 
 // TODO: Add some basic checks
-func validateRequest(req *api.CreateContactRequest) error {
-	if req.LastName == "" || req.FirstName == "" {
+func validateRequest(contact api.Contact) error {
+	if contact.FirstName == "" {
+		return errors.New("bad first name")
+	}
+
+	if contact.LastName == "" {
 		return errors.New("bad last name")
 	}
 

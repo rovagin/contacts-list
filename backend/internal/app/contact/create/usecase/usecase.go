@@ -1,6 +1,7 @@
 package usecase
 
 type Contact struct {
+	ID        int
 	FirstName string
 	LastName  string
 	Phone     string
@@ -9,7 +10,7 @@ type Contact struct {
 }
 
 type Repository interface {
-	Save(contact Contact) (int, error)
+	Save(userID int, contact Contact) error
 }
 
 type Usecase struct {
@@ -22,11 +23,11 @@ func New(repo Repository) *Usecase {
 	}
 }
 
-func (u *Usecase) Do(contact Contact) (int, error) {
-	result, err := u.contactsRepo.Save(contact)
+func (u *Usecase) Do(userID int, contact Contact) error {
+	err := u.contactsRepo.Save(0, contact)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return result, nil
+	return nil
 }

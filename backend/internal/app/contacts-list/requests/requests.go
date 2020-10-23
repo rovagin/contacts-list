@@ -33,7 +33,21 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result, err := r.interactor.Do(0)
+	requestPayload := &api.ContactsListRequest{}
+
+	err = json.Unmarshal(request.Payload, requestPayload)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = validate(requestPayload)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	result, err := r.interactor.Do(requestPayload.UserID)
 	if err != nil {
 		code, payload := errors.ProcessError(err)
 		fullResponse, err := wrapper.BuildResponse(request.RID, code, payload)
@@ -53,7 +67,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fullResponse, err := wrapper.BuildResponse("", 0, payloadBytes)
+	fullResponse, err := wrapper.BuildResponse(request.RID, 0, payloadBytes)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -63,8 +77,16 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Write(fullResponse)
 }
 
-func toAPI(contacts usecase.Contacts) api.Contacts {
-	result := make(api.Contacts, 0, len(contacts))
+func validate(payload *api.ContactsListRequest) error {
+	if payload.UserID < 0 {
+		return errors.New("bad user id")
+	}
+
+	return nil
+}
+
+func toAPI(contacts usecase.Contacts) api.ContactsListResponse {
+	result := make(api.ContactsListResponse, 0, len(contacts))
 
 	for _, v := range contacts {
 		result = append(result, api.Contact{

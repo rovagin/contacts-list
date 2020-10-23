@@ -1,10 +1,20 @@
 package adapter
 
-type Adapter struct {
+import "time"
+
+type Collection interface {
 }
 
-func New() *Adapter {
-	return &Adapter{}
+type Adapter struct {
+	collection Collection
+	timeout    time.Duration
+}
+
+func New(collection Collection, timeout time.Duration) *Adapter {
+	return &Adapter{
+		collection: collection,
+		timeout:    timeout,
+	}
 }
 
 func (a *Adapter) Update() error {

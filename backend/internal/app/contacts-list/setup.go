@@ -4,10 +4,11 @@ import (
 	"contacts-list/internal/app/contacts-list/adapter"
 	"contacts-list/internal/app/contacts-list/requests"
 	"contacts-list/internal/app/contacts-list/usecase"
+	"time"
 )
 
-func Setup() *requests.Requests {
-	repo := adapter.New()
+func Setup(coll adapter.Collection, collTimeout time.Duration) *requests.Requests {
+	repo := adapter.New(coll, collTimeout)
 
 	u := usecase.New(repo)
 

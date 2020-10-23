@@ -1,22 +1,20 @@
 package main
 
 import (
+	"contacts-list/internal/pkg/connector"
+	"contacts-list/internal/pkg/mongo"
+
 	"github.com/caarlos0/env/v6"
-	"time"
 )
 
 type Config struct {
-	PG   PG
-	HTTP HTTP
+	Mongo     mongo.Config
+	HTTP      HTTP
+	Connector connector.Config
 }
 
 type HTTP struct {
-	URI string `env:"HTTP_SERVER_URI" enfDefault:"0.0.0.0:80"`
-}
-
-type PG struct {
-	URI               string        `env:"PG_URI"`
-	ConnectionTimeout time.Duration `env:"PG_CONNECT_TIMEOUT"`
+	URI string `env:"HTTP_SERVER_URI" enfDefault:"0.0.0.0:8000"`
 }
 
 func parse() (*Config, error) {

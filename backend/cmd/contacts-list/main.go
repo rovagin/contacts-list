@@ -1,16 +1,18 @@
 package main
 
 import (
-	"contacts-list/internal/app/contact/create"
-	getbyname "contacts-list/internal/app/contact/get-by-name"
-	getbyphone "contacts-list/internal/app/contact/get-by-phone"
-	"contacts-list/internal/app/contact/remove"
-	"contacts-list/internal/app/contact/update"
-	contactslist "contacts-list/internal/app/contacts-list"
-	"github.com/gorilla/mux"
+	"contacts-list/internal/pkg/connector"
+	"contacts-list/internal/pkg/mongo"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
+
+	"contacts-list/internal/app/contact/create"
+	"contacts-list/internal/app/contact/remove"
+	"contacts-list/internal/app/contact/update"
+	contactslist "contacts-list/internal/app/contacts-list"
 )
 
 func main() {
@@ -19,21 +21,28 @@ func main() {
 		panic(err)
 	}
 
-	createRequest := create.Setup()
-	updateRequest := update.Setup()
-	removeRequest := remove.Setup()
-	getByNameRequest := getbyname.Setup()
-	getByPhoneRequest := getbyphone.Setup()
-	contactsListRequest := contactslist.Setup()
+	mongoConn := mongo.New("users contacts", config.Mongo)
+
+	err = connector.Connect(config.Connector, mongoConn)
+	if err != nil {
+		panic(err)
+	}
+
+	createRequest := create.Setup(mongoConn.Collection("users_contacts"), config.Mongo.RequestsTimeout)
+	updateRequest := update.Setup(mongoConn.Collection("users_contacts"), config.Mongo.RequestsTimeout)
+	removeRequest := remove.Setup(mongoConn.Collection("users_contacts"), config.Mongo.RequestsTimeout)
+	contactsListRequest := contactslist.Setup(mongoConn.Collection("users_contacts"), config.Mongo.RequestsTimeout)
 
 	router := mux.NewRouter()
 
-	router.Handle("/contacts", contactsListRequest).Methods(http.MethodPost)
-	router.Handle("/contact", createRequest).Methods(http.MethodPost)
-	router.Handle("/contact/{id}", updateRequest).Methods(http.MethodPatch)
-	router.Handle("/contact/{id}", removeRequest).Methods(http.MethodDelete)
-	router.Handle("/contact/by-name", getByNameRequest).Methods(http.MethodPost)
-	router.Handle("/contact/by-phone", getByPhoneRequest).Methods(http.MethodPost)
+	router.Use(accessControlMiddleware)
+
+	router.Handle("/contacts", contactsListRequest).Methods(http.MethodPost, http.MethodOptions)
+	router.Handle("/contact", createRequest).Methods(http.MethodPost, http.MethodOptions)
+	router.Handle("/contact/{id}", updateRequest).Methods(http.MethodPatch, http.MethodOptions)
+	router.Handle("/contact/{id}", removeRequest).Methods(http.MethodDelete, http.MethodOptions)
+
+	log.Println("starting http server")
 
 	srv := &http.Server{
 		Handler:      router,
@@ -43,4 +52,19 @@ func main() {
 	}
 
 	log.Fatal(srv.ListenAndServe())
+}
+
+func accessControlMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS,PUT")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
