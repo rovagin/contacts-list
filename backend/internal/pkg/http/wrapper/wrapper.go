@@ -16,9 +16,8 @@ func GetRequest(body []byte) (*api.Request, error) {
 	return request, nil
 }
 
-func BuildResponse(rid string, code int, payload []byte) ([]byte, error) {
+func BuildResponse(code int, payload []byte) ([]byte, error) {
 	result, err := json.Marshal(&api.Response{
-		RID:     rid,
 		Code:    code,
 		Payload: payload,
 	})

@@ -6,8 +6,10 @@ import (
 	"contacts-list/internal/pkg/errors"
 	"contacts-list/internal/pkg/http/wrapper"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type Requests struct {
@@ -21,36 +23,18 @@ func New(interactor *usecase.Usecase) *Requests {
 }
 
 func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	vars := mux.Vars(req)
+
+	userID, err := sanitize(vars["user"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	request, err := wrapper.GetRequest(body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	requestPayload := &api.ContactsListRequest{}
-
-	err = json.Unmarshal(request.Payload, requestPayload)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	err = validate(requestPayload)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	result, err := r.interactor.Do(requestPayload.UserID)
+	result, err := r.interactor.Do(userID)
 	if err != nil {
 		code, payload := errors.ProcessError(err)
-		fullResponse, err := wrapper.BuildResponse(request.RID, code, payload)
+		fullResponse, err := wrapper.BuildResponse(code, payload)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -67,7 +51,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fullResponse, err := wrapper.BuildResponse(request.RID, 0, payloadBytes)
+	fullResponse, err := wrapper.BuildResponse(0, payloadBytes)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -77,12 +61,17 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Write(fullResponse)
 }
 
-func validate(payload *api.ContactsListRequest) error {
-	if payload.UserID < 0 {
-		return errors.New("bad user id")
+func sanitize(payload string) (int, error) {
+	userID, err := strconv.Atoi(payload)
+	if err != nil {
+		return 0, errors.New("bad user id")
 	}
 
-	return nil
+	if userID < 0 {
+		return 0, errors.New("bad user id")
+	}
+
+	return userID, nil
 }
 
 func toAPI(contacts usecase.Contacts) api.ContactsListResponse {

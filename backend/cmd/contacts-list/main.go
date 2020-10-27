@@ -3,8 +3,12 @@ package main
 import (
 	"contacts-list/internal/pkg/connector"
 	"contacts-list/internal/pkg/mongo"
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -37,12 +41,10 @@ func main() {
 
 	router.Use(accessControlMiddleware)
 
-	router.Handle("/contacts", contactsListRequest).Methods(http.MethodPost, http.MethodOptions)
-	router.Handle("/contact", createRequest).Methods(http.MethodPost, http.MethodOptions)
-	router.Handle("/contact", updateRequest).Methods(http.MethodPatch, http.MethodOptions)
-	router.Handle("/contact", removeRequest).Methods(http.MethodDelete, http.MethodOptions)
-
-	log.Println("starting http server")
+	router.Handle("/{user}/contacts", contactsListRequest).Methods(http.MethodGet, http.MethodOptions)
+	router.Handle("/{user}/contact", createRequest).Methods(http.MethodPost, http.MethodOptions)
+	router.Handle("/{user}/contact/{id}", updateRequest).Methods(http.MethodPatch, http.MethodOptions)
+	router.Handle("/{user}/contact/{id}", removeRequest).Methods(http.MethodDelete, http.MethodOptions)
 
 	srv := &http.Server{
 		Handler:      router,
@@ -51,13 +53,32 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Fatal(srv.ListenAndServe())
+	log.Println("starting http server")
+	go func() {
+		err := srv.ListenAndServe()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGABRT)
+
+	<-stop
+	log.Println("stopping server")
+
+	err = srv.Shutdown(context.Background())
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("server stopped")
 }
 
 func accessControlMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS,PUT")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
 
 		if r.Method == "OPTIONS" {

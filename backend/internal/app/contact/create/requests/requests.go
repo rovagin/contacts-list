@@ -7,6 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/goware/emailx"
 
 	"contacts-list/internal/app/contact/create/usecase"
 	"contacts-list/internal/pkg/errors"
@@ -23,6 +27,8 @@ func New(interactor *usecase.Usecase) *Requests {
 }
 
 func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -48,6 +54,12 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	userID, err := sanitize(vars["user"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	err = validateRequest(contactReq.Contact)
 	if err != nil {
 		// TODO: there could be general response with hint to bad data
@@ -55,7 +67,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = r.interactor.Do(contactReq.UserID, usecase.Contact{
+	err = r.interactor.Do(userID, usecase.Contact{
 		ID:        contactReq.Contact.ID,
 		FirstName: contactReq.Contact.FirstName,
 		LastName:  contactReq.Contact.LastName,
@@ -65,7 +77,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	})
 	if err != nil {
 		code, payload := errors.ProcessError(err)
-		fullResponse, err := wrapper.BuildResponse(request.RID, code, payload)
+		fullResponse, err := wrapper.BuildResponse(code, payload)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -87,5 +99,31 @@ func validateRequest(contact api.CreateContact) error {
 		return errors.New("bad last name")
 	}
 
+	err := emailx.Validate(contact.Email)
+	if err != nil {
+		if err == emailx.ErrInvalidFormat {
+			return errors.New("Wrong format.")
+		}
+
+		if err == emailx.ErrUnresolvableHost {
+			return errors.New("Unresolvable host.")
+		}
+
+		return errors.New("Email is ")
+	}
+
 	return nil
+}
+
+func sanitize(payload string) (int, error) {
+	userID, err := strconv.Atoi(payload)
+	if err != nil {
+		return 0, errors.New("bad user id")
+	}
+
+	if userID < 0 {
+		return 0, errors.New("bad user id")
+	}
+
+	return userID, nil
 }

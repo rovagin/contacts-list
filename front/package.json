@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,12 +11,21 @@
     "@testing-library/user-event": "^7.1.2",
     "@types/jest": "^24.0.0",
     "@types/node": "^12.0.0",
+    "@types/phone": "^2.4.0",
     "@types/react": "^16.9.0",
+    "@types/react-bootstrap": "^0.32.24",
     "@types/react-dom": "^16.9.0",
+    "@types/react-router-dom": "^5.1.6",
+    "axios": "^0.20.0",
+    "bootstrap": "^4.5.3",
+    "phone": "^2.4.17",
     "react": "^17.0.0",
+    "react-bootstrap": "^1.4.0",
     "react-dom": "^17.0.0",
+    "react-form-input-validation": "^2.0.5",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.4",
-    "typescript": "~3.7.2"
+    "typescript": "^3.8.0"
   },
   "scripts": {
     "start": "react-scripts start",

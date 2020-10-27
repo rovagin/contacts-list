@@ -9,6 +9,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type Requests struct {
@@ -22,6 +25,8 @@ func New(interactor *usecase.Usecase) *Requests {
 }
 
 func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,6 +41,7 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if request.Payload == nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -43,6 +49,21 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	updateReq := new(api.UpdateContactRequest)
 	err = json.Unmarshal(request.Payload, updateReq)
 	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID, err := sanitize("user id", vars["user"])
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	contactID, err := sanitize("contact id", vars["id"])
+	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,15 +71,17 @@ func (r *Requests) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	err = validate(updateReq)
 	if err != nil {
 		// TODO: there could be general response with hint to bad data
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = r.interactor.Do(updateReq.UserID, updateReq.ContactID, updateReq.Fields)
+	err = r.interactor.Do(userID, contactID, updateReq.Fields)
 	if err != nil {
 		code, payload := errors.ProcessError(err)
-		fullResponse, err := wrapper.BuildResponse(request.RID, code, payload)
+		fullResponse, err := wrapper.BuildResponse(code, payload)
 		if err != nil {
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -78,15 +101,6 @@ var updateFields = map[string]struct{}{
 }
 
 func validate(req *api.UpdateContactRequest) error {
-	if req.UserID < 0 {
-		return errors.New("bad user id")
-	}
-
-	if req.ContactID < 0 {
-		return errors.New("bad contact id")
-
-	}
-
 	for k := range req.Fields {
 		if _, ok := updateFields[k]; !ok {
 			return errors.New("bad update field")
@@ -94,4 +108,17 @@ func validate(req *api.UpdateContactRequest) error {
 	}
 
 	return nil
+}
+
+func sanitize(field, payload string) (int, error) {
+	userID, err := strconv.Atoi(payload)
+	if err != nil {
+		return 0, errors.Errorf("bad %s value", field)
+	}
+
+	if userID < 0 {
+		return 0, errors.Errorf("bad %s value", field)
+	}
+
+	return userID, nil
 }
