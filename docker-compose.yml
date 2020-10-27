@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.0"
 services:
   mongodb:
     image: mongo:latest
@@ -7,6 +7,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: users_contacts
+
+  mongo-seed:
+    build: ./mongodb
+    links:
+      - mongodb
 
   backend:
     image: w84thesun/contacts-list-backend:latest

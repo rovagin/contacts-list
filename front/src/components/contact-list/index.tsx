@@ -5,6 +5,7 @@ import {Button, ListGroup} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrash} from "@fortawesome/free-solid-svg-icons/faTrash";
 import api from '../../utils/api';
+import {Link} from 'react-router-dom';
 
 interface Props {
     contacts: Array<Contact>;
@@ -37,9 +38,9 @@ export class ContactList extends React.Component<Props> {
         } else {
             content = (this.props.contacts.map((contact) =>
                 <ListGroup.Item key={contact.id}>
-                    <div className={'name'}>
+                    <Link className={'name'} to={{pathname:`/${this.props.userID}/contact/${contact.id}`, state:{contact: contact}}}>
                         <p>{contact.first_name + ' ' + contact.last_name}</p>
-                    </div>
+                    </Link>
                     <Button variant={'danger'} className='removeBtn' type={"submit"} onClick={e => this.handleRemove(contact.id)}>
                         <FontAwesomeIcon icon={faTrash} />
                     </Button>

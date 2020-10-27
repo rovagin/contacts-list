@@ -78,7 +78,7 @@ func main() {
 func accessControlMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
 
 		if r.Method == "OPTIONS" {

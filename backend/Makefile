@@ -1,4 +1,4 @@
-PROJECT_NAME=contacts-list-backend
+PROJECT_NAME=contacts-list
 
 install-migrate:
 	cd / && go get -u github.com/golang-migrate/migrate/cmd/migrate

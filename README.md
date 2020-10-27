@@ -1,4 +1,4 @@
-Технологии: React + Go + Pg + Docker.
+Технологии: React + Go + MongoDB + Docker.
  
 Написать приложение «Телефонная книга».  
 Поля: фио, телефон, email, текстовая заметка  
@@ -18,12 +18,5 @@ UI:
  
 Generate Some stub data: https://next.json-generator.com/EJQL5qiPK
 
-TODO: добавить миграции
-
 Для запуска выполнить: `docker-compose up -d`
 
-После запуска необходимо выполнить: 
-1. Зайти в контейнер mongo   
-`docker-compose exec -it bash mongodb`  
-2. Выполнить  
-`mongo --exec 'db.users_contacts.insert({_id: 0})' mongodb://admin:password@localhost:27017/users_contacts?authSource=admin`
