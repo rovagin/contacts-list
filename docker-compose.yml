@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+  backend:
+    image: w84thesun/contacts-list-backend:latest
+    ports:
+      - 8080:8080
+    environment:
+      MONGO_URI: mongodb://admin:password@mongodb:27017/users_contacts?authSource=admin
+      MONGO_REQUESTS_TIMEOUT: 1s
+      HTTP_SERVER_URI: 0.0.0.0:8080
+      CONNECTOR_TIMEOUT: 5s
+    depends_on:
+      - mongodb
+
+  frontend:
+    image: w84thesun/contacts-list-frontend:latest
+    ports:
+      - 8081:80

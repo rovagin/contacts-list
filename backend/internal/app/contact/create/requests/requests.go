@@ -1,8 +1,6 @@
 package requests
 
 import (
-	"contacts-list/api"
-	"contacts-list/internal/pkg/http/wrapper"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -12,8 +10,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/goware/emailx"
 
+	"contacts-list/api"
 	"contacts-list/internal/app/contact/create/usecase"
 	"contacts-list/internal/pkg/errors"
+	"contacts-list/internal/pkg/http/wrapper"
 )
 
 type Requests struct {

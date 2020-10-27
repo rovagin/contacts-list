@@ -1,4 +1,7 @@
-PROJECT_NAME=contacts-list
+PROJECT_NAME=contacts-list-backend
+
+install-migrate:
+	cd / && go get -u github.com/golang-migrate/migrate/cmd/migrate
 
 gen-api:
 	cd api && easyjson --all .
